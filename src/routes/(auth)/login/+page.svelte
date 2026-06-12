@@ -11,7 +11,7 @@
 			>
 				<GalleryVerticalEndIcon class="size-4" />
 			</div>
-			Guillermo 365
+			N365
 		</a>
 		<LoginForm />
 	</div>

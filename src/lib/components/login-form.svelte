@@ -12,8 +12,32 @@
 	import { cn } from '$lib/utils.js';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
+	import { toast } from 'svelte-sonner';
 	let { class: className, ...restProps }: HTMLAttributes<HTMLDivElement> = $props();
 	const id = $props.id();
+
+	import { supabase } from '$lib/supabase';
+	import { goto } from '$app/navigation';
+
+	let email = $state('');
+	let password = $state('');
+	let message = $state('');
+
+	async function login(event: SubmitEvent) {
+		event.preventDefault();
+
+		const { error } = await supabase.auth.signInWithPassword({
+			email,
+			password
+		});
+
+		if (error) {
+			toast.error(error.message);
+			return;
+		}
+
+		goto('/');
+	}
 </script>
 
 <div class={cn('flex flex-col gap-6', className)} {...restProps}>
@@ -24,7 +48,7 @@
 			<Card.Description>Login with your Apple or Google account</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form>
+			<form onsubmit={login}>
 				<FieldGroup>
 					<Field>
 						<Button variant="outline" type="button">
@@ -51,7 +75,13 @@
 					</FieldSeparator>
 					<Field>
 						<FieldLabel for="email-{id}">Email</FieldLabel>
-						<Input id="email-{id}" type="email" placeholder="mail@example.com" required />
+						<Input
+							id="email-{id}"
+							type="email"
+							placeholder="mail@example.com"
+							bind:value={email}
+							required
+						/>
 					</Field>
 					<Field>
 						<div class="flex items-center">
@@ -60,12 +90,15 @@
 								Forgot your password?
 							</a>
 						</div>
-						<Input id="password-{id}" type="password" required />
+						<Input id="password-{id}" type="password" bind:value={password} required />
 					</Field>
 					<Field>
 						<Button type="submit">Login</Button>
+						{#if message}
+							<p class="text-center text-sm text-destructive">{message}</p>
+						{/if}
 						<FieldDescription class="text-center">
-							Don't have an account? <a href="##">Sign up</a>
+							Don't have an account? <a href="/signup">Sign up</a>
 						</FieldDescription>
 					</Field>
 				</FieldGroup>

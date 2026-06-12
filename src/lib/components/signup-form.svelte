@@ -6,7 +6,28 @@
 	import { Input } from '$lib/components/ui/input/index.js';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
+	import { toast } from 'svelte-sonner';
 	let { class: className, ...restProps }: HTMLAttributes<HTMLDivElement> = $props();
+
+	import { supabase } from '$lib/supabase';
+	import { goto } from '$app/navigation';
+
+	let email = $state('');
+	let password = $state('');
+
+	async function signUp() {
+		const { error } = await supabase.auth.signUp({
+			email,
+			password
+		});
+
+		if (error) {
+			toast.error(error.message);
+			return;
+		}
+
+		goto('/login');
+	}
 </script>
 
 <div class={cn('flex flex-col gap-6', className)} {...restProps}>
@@ -17,21 +38,27 @@
 			<Card.Description>Enter your email below to create your account</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form>
+			<form onsubmit={signUp}>
 				<Field.Group>
 					<Field.Field>
 						<Field.Label for="name">Full Name</Field.Label>
-						<Input id="name" type="text" placeholder="Barry Alison" required />
+						<Input id="name" type="text" placeholder="" required />
 					</Field.Field>
 					<Field.Field>
 						<Field.Label for="email">Email</Field.Label>
-						<Input id="email" type="email" placeholder="mail@example.com" required />
+						<Input
+							id="email"
+							type="email"
+							placeholder="mail@example.com"
+							bind:value={email}
+							required
+						/>
 					</Field.Field>
 					<Field.Field>
 						<Field.Field class="grid grid-cols-2 gap-4">
 							<Field.Field>
 								<Field.Label for="password">Password</Field.Label>
-								<Input id="password" type="password" required />
+								<Input id="password" type="password" bind:value={password} required />
 							</Field.Field>
 							<Field.Field>
 								<Field.Label for="confirm-password">Confirm Password</Field.Label>
@@ -43,7 +70,7 @@
 					<Field.Field>
 						<Button type="submit">Create Account</Button>
 						<Field.Description class="text-center">
-							Already have an account? <a href="#/">Sign in</a>
+							Already have an account? <a href="/login">Sign in</a>
 						</Field.Description>
 					</Field.Field>
 				</Field.Group>
