@@ -3,8 +3,10 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Item from '$lib/components/ui/item/index.js';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
+	import { draw } from 'svelte/transition';
 
 	let selectedEntry = $state<WeightEntry | null>(null);
+	let drawerOpen = $state(false);
 
 	let {
 		weights,
@@ -15,6 +17,16 @@
 		onDelete: (entry: WeightEntry) => void;
 		onEdit: (entry: WeightEntry) => void;
 	} = $props();
+
+	function openDrawer(entry: WeightEntry) {
+		selectedEntry = entry;
+		drawerOpen = true;
+	}
+
+	function closeDrawer() {
+		drawerOpen = false;
+		selectedEntry = null;
+	}
 
 	function formatEntryDate(recorded_on: string) {
 		const date = new Date(recorded_on);
@@ -33,7 +45,7 @@
 
 		<Item.Root variant="outline">
 			{#snippet child({ props })}
-				<button type="button" {...props} onclick={() => (selectedEntry = entry)}>
+				<button type="button" {...props} onclick={() => openDrawer(entry)}>
 					<Item.Media>
 						<div
 							class="size-12 flex flex-col overflow-hidden rounded bg-white border border-sidebar-ring"
@@ -65,9 +77,13 @@
 </div>
 
 <Drawer.Root
-	open={!!selectedEntry}
+	open={drawerOpen}
 	onOpenChange={(open) => {
-		if (!open) selectedEntry = null;
+		drawerOpen = open;
+
+		if (!open) {
+			selectedEntry = null;
+		}
 	}}
 >
 	<Drawer.Content>
@@ -77,7 +93,7 @@
 				onclick={() => {
 					if (!selectedEntry) return;
 					onEdit(selectedEntry);
-					selectedEntry = null;
+					closeDrawer();
 				}}
 			>
 				Edit
@@ -88,7 +104,7 @@
 				onclick={() => {
 					if (!selectedEntry) return;
 					onDelete(selectedEntry);
-					selectedEntry = null;
+					closeDrawer();
 				}}
 			>
 				Delete
