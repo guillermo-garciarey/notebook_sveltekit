@@ -70,9 +70,9 @@
 		</div>
 
 		<Dialog.Footer>
-			<Button variant="outline" onclick={onClose}>Cancel</Button>
+			<Button size="lg" variant="outline" onclick={onClose}>Cancel</Button>
 
-			<Button onclick={handleSave} disabled={saving}>
+			<Button size="lg" onclick={handleSave} disabled={saving}>
 				{#if saving}
 					<Spinner />
 					Saving...

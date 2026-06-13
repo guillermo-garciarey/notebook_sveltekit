@@ -89,6 +89,7 @@
 	<Drawer.Content>
 		<Drawer.Footer>
 			<Button
+				size="lg"
 				variant="secondary"
 				onclick={() => {
 					if (!selectedEntry) return;
@@ -100,6 +101,7 @@
 			</Button>
 
 			<Button
+				size="lg"
 				variant="destructive"
 				onclick={() => {
 					if (!selectedEntry) return;
