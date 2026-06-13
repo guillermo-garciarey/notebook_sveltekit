@@ -29,10 +29,10 @@
 		}
 	});
 
-	function handleSave() {
+	async function handleSave() {
 		if (!entry) return;
 
-		onSave(entry.id, Number(editWeight), editDate);
+		await onSave(entry.id, Number(editWeight), editDate);
 		onClose();
 	}
 </script>

@@ -4,6 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { Button } from '$lib/components/ui/button';
+	import WeightChart from '$lib/components/weight-chart.svelte';
 	import type { WeightEntry } from '$lib/types/weight';
 	import WeightGallery from '$lib/components/weight-gallery.svelte';
 	import EditWeightDialog from '$lib/components/edit-weight-dialog.svelte';
@@ -31,25 +32,31 @@
 	async function loadWeights() {
 		loading = true;
 
-		const { data, error } = await supabase
-			.from('weight_entries')
-			.select('*')
-			.order('recorded_on', { ascending: false });
+		try {
+			const { data, error } = await supabase
+				.from('weight_entries')
+				.select('*')
+				.order('recorded_on', { ascending: false });
 
-		if (error) {
-			console.error(error);
-			toast.error('Could not load weights');
+			if (error) {
+				console.error(error);
+				toast.error(error.message);
+				weights = [];
+				return;
+			}
+
+			weights = data ?? [];
+		} catch (err) {
+			console.error(err);
+			toast.error('Unexpected error loading weights');
 			weights = [];
+		} finally {
 			loading = false;
-			return;
 		}
-
-		weights = data ?? [];
-		loading = false;
 	}
 
 	$effect(() => {
-		loadWeights();
+		void loadWeights();
 	});
 
 	async function addWeight() {
@@ -147,6 +154,9 @@
 				bind:value={weight}
 				placeholder="This is where you put them kg"
 			/>
+			{#if weights.length > 0}
+				<!-- <WeightChart {weights} /> -->
+			{/if}
 			<Button onclick={logout}>Logout</Button>
 
 			<button onclick={nextPanel}> Go to history → </button>
@@ -163,7 +173,11 @@
 				{:else if weights.length === 0}
 					<p>No weights yet.</p>
 				{:else}
-					<WeightGallery {weights} onDelete={deleteWeight} onEdit={updateWeight} />
+					<WeightGallery
+						{weights}
+						onDelete={(entry) => (deletingEntry = entry)}
+						onEdit={(entry) => (editingEntry = entry)}
+					/>
 				{/if}
 			</div>
 		</section>
@@ -175,6 +189,7 @@
 		onClose={() => (editingEntry = null)}
 		onSave={updateWeight}
 	/>
+
 	<DeleteWeightDialog
 		entry={deletingEntry}
 		onClose={() => (deletingEntry = null)}

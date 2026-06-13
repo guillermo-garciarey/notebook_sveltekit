@@ -1,14 +1,10 @@
 <script lang="ts">
-	import type { WeightEntry } from '$lib/mockData/weights';
+	import type { WeightEntry } from '$lib/types/weight';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Item from '$lib/components/ui/item/index.js';
-	import EditWeightDialog from './edit-weight-dialog.svelte';
-	import DeleteWeightDialog from './delete-weight-dialog.svelte';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 
 	let selectedEntry = $state<WeightEntry | null>(null);
-	let editingEntry = $state<WeightEntry | null>(null);
-	let deletingEntry = $state<WeightEntry | null>(null);
 
 	let {
 		weights,
@@ -16,8 +12,8 @@
 		onEdit
 	}: {
 		weights: WeightEntry[];
-		onDelete: (id: string) => void;
-		onEdit: (id: string, weight_kg: number, recorded_on: string) => void;
+		onDelete: (entry: WeightEntry) => void;
+		onEdit: (entry: WeightEntry) => void;
 	} = $props();
 
 	function formatEntryDate(recorded_on: string) {
@@ -55,7 +51,7 @@
 					<Item.Content class="h-full">
 						<Item.Title>
 							{entry.weight_kg}
-							<span class="text-muted-foreground">- kg</span>
+							<span class="text-muted-foreground"> kg</span>
 						</Item.Title>
 
 						<Item.Description>
@@ -77,9 +73,10 @@
 	<Drawer.Content>
 		<Drawer.Footer>
 			<Button
-				variant="outline"
+				variant="secondary"
 				onclick={() => {
-					editingEntry = selectedEntry;
+					if (!selectedEntry) return;
+					onEdit(selectedEntry);
 					selectedEntry = null;
 				}}
 			>
@@ -89,7 +86,8 @@
 			<Button
 				variant="destructive"
 				onclick={() => {
-					deletingEntry = selectedEntry;
+					if (!selectedEntry) return;
+					onDelete(selectedEntry);
 					selectedEntry = null;
 				}}
 			>
@@ -98,11 +96,3 @@
 		</Drawer.Footer>
 	</Drawer.Content>
 </Drawer.Root>
-
-<EditWeightDialog entry={editingEntry} onClose={() => (editingEntry = null)} onSave={onEdit} />
-
-<DeleteWeightDialog
-	entry={deletingEntry}
-	onClose={() => (deletingEntry = null)}
-	onConfirm={onDelete}
-/>
