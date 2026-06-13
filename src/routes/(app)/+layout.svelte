@@ -21,7 +21,7 @@
 </script>
 
 {#if checkingAuth}
-	<div class="flex min-h-screen items-center justify-center">
+	<div class="flex w-full min-h-screen items-center justify-center">
 		<p>Loading...</p>
 	</div>
 {:else}

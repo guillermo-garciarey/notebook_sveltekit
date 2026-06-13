@@ -1,10 +1,124 @@
 <script lang="ts">
+	import { Input } from '$lib/components/ui/input/index.js';
 	import { supabase } from '$lib/supabase';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { Button } from '$lib/components/ui/button';
-	import { fakeWeights, type WeightEntry } from '$lib/mockData/weights';
+	import type { WeightEntry } from '$lib/types/weight';
 	import WeightGallery from '$lib/components/weight-gallery.svelte';
+	import EditWeightDialog from '$lib/components/edit-weight-dialog.svelte';
+	import DeleteWeightDialog from '$lib/components/delete-weight-dialog.svelte';
+
+	let activePanel = $state(0);
+
+	const panels = ['chart', 'history'];
+
+	function nextPanel() {
+		activePanel = Math.min(activePanel + 1, panels.length - 1);
+	}
+
+	function previousPanel() {
+		activePanel = Math.max(activePanel - 1, 0);
+	}
+
+	let weight = $state('');
+	let weights = $state<WeightEntry[]>([]);
+	let loading = $state(false);
+
+	let editingEntry = $state<WeightEntry | null>(null);
+	let deletingEntry = $state<WeightEntry | null>(null);
+
+	async function loadWeights() {
+		loading = true;
+
+		const { data, error } = await supabase
+			.from('weight_entries')
+			.select('*')
+			.order('recorded_on', { ascending: false });
+
+		if (error) {
+			console.error(error);
+			toast.error('Could not load weights');
+			weights = [];
+			loading = false;
+			return;
+		}
+
+		weights = data ?? [];
+		loading = false;
+	}
+
+	$effect(() => {
+		loadWeights();
+	});
+
+	async function addWeight() {
+		if (!weight) {
+			toast.error('Enter a weight');
+			return;
+		}
+
+		const { data: userData, error: userError } = await supabase.auth.getUser();
+
+		if (userError || !userData.user) {
+			toast.error('You must be logged in');
+			return;
+		}
+
+		const newEntry = {
+			user_id: userData.user.id,
+			weight_kg: Number(weight),
+			recorded_on: new Date().toISOString().split('T')[0]
+		};
+
+		const { data, error } = await supabase
+			.from('weight_entries')
+			.insert(newEntry)
+			.select()
+			.single();
+
+		if (error) {
+			console.error(error);
+			toast.error('Could not add weight');
+			return;
+		}
+
+		weights = [data, ...weights];
+		weight = '';
+		toast.success('Weight recorded');
+	}
+
+	async function updateWeight(id: string, weight_kg: number, recorded_on: string) {
+		const { data, error } = await supabase
+			.from('weight_entries')
+			.update({ weight_kg, recorded_on })
+			.eq('id', id)
+			.select()
+			.single();
+
+		if (error) {
+			console.error(error);
+			toast.error('Could not update weight');
+			return;
+		}
+
+		weights = weights.map((entry) => (entry.id === id ? data : entry));
+		toast.success('Weight updated');
+	}
+
+	async function deleteWeight(id: string) {
+		const { error } = await supabase.from('weight_entries').delete().eq('id', id);
+
+		if (error) {
+			console.error(error);
+			toast.error('Could not delete weight');
+			return;
+		}
+
+		weights = weights.filter((entry) => entry.id !== id);
+		toast.success('Weight deleted');
+	}
+
 	async function logout() {
 		const { error } = await supabase.auth.signOut();
 
@@ -16,36 +130,54 @@
 		toast.success('Logged out');
 		goto('/login');
 	}
-
-	let weights = $state<WeightEntry[]>(fakeWeights);
-
-	function addWeight(weight_kg: number, recorded_on: string) {
-		const newEntry: WeightEntry = {
-			id: crypto.randomUUID(),
-			user_id: 'fake-user-1',
-			recorded_on,
-			weight_kg,
-			created_at: new Date().toISOString()
-		};
-
-		weights = [newEntry, ...weights];
-		toast.success('Weight recorded');
-	}
-
-	function updateWeight(id: string, weight_kg: number) {
-		weights = weights.map((entry) => (entry.id === id ? { ...entry, weight_kg } : entry));
-		toast.success('Weight updated');
-	}
-
-	function deleteWeight(id: string) {
-		weights = weights.filter((entry) => entry.id !== id);
-		toast.success('Weight deleted');
-	}
 </script>
 
-<div class="p-8">
-	<h1>Welcome to Notebook</h1>
-	<WeightGallery {weights} onDelete={deleteWeight} onAdd={addWeight} onEdit={updateWeight} />
+<div class="h-dvh overflow-hidden">
+	<div
+		class="flex h-full transition-transform duration-300 ease-out"
+		style={`transform: translateX(-${activePanel * 100}%);`}
+	>
+		<section class="h-full w-full shrink-0 p-6">
+			<h1 class="text-3xl font-bold">Weight</h1>
+			<Button variant="default" onclick={addWeight}>ADD WEIGHT BAYBEEE</Button>
 
-	<Button onclick={logout}>Logout</Button>
+			<Input
+				id="weight"
+				type="number"
+				bind:value={weight}
+				placeholder="This is where you put them kg"
+			/>
+			<Button onclick={logout}>Logout</Button>
+
+			<button onclick={nextPanel}> Go to history → </button>
+		</section>
+
+		<section class="h-full w-full shrink-0 p-6">
+			<button onclick={previousPanel}> ← Back to chart </button>
+
+			<h1 class="text-3xl font-bold">History</h1>
+
+			<div class="mt-4 h-[calc(100dvh-10rem)] overflow-y-auto">
+				{#if loading}
+					<p>Loading weights...</p>
+				{:else if weights.length === 0}
+					<p>No weights yet.</p>
+				{:else}
+					<WeightGallery {weights} onDelete={deleteWeight} onEdit={updateWeight} />
+				{/if}
+			</div>
+		</section>
+	</div>
+	<!-- Dialogs -->
+
+	<EditWeightDialog
+		entry={editingEntry}
+		onClose={() => (editingEntry = null)}
+		onSave={updateWeight}
+	/>
+	<DeleteWeightDialog
+		entry={deletingEntry}
+		onClose={() => (deletingEntry = null)}
+		onConfirm={deleteWeight}
+	/>
 </div>

@@ -1,89 +1,108 @@
 <script lang="ts">
 	import type { WeightEntry } from '$lib/mockData/weights';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import Trash from '@lucide/svelte/icons/trash-2';
-	import Edit from '@lucide/svelte/icons/pencil';
-	import Input from './ui/input/input.svelte';
-	import { toast } from 'svelte-sonner';
+	import * as Item from '$lib/components/ui/item/index.js';
+	import EditWeightDialog from './edit-weight-dialog.svelte';
+	import DeleteWeightDialog from './delete-weight-dialog.svelte';
+	import * as Drawer from '$lib/components/ui/drawer/index.js';
 
-	let weight = $state('');
-	let weight_edit = $state('');
-	let editingId = $state<string | null>(null);
+	let selectedEntry = $state<WeightEntry | null>(null);
+	let editingEntry = $state<WeightEntry | null>(null);
+	let deletingEntry = $state<WeightEntry | null>(null);
 
 	let {
 		weights,
 		onDelete,
-		onAdd,
 		onEdit
 	}: {
 		weights: WeightEntry[];
 		onDelete: (id: string) => void;
-		onAdd: (weight_kg: number, recorded_on: string) => void;
-		onEdit: (id: string, weight_kg: number) => void;
+		onEdit: (id: string, weight_kg: number, recorded_on: string) => void;
 	} = $props();
 
-	function handleAddWeight() {
-		if (!weight) {
-			toast.error('Enter a weight');
-			return;
-		}
-		onAdd(Number(weight), new Date().toISOString().split('T')[0]);
+	function formatEntryDate(recorded_on: string) {
+		const date = new Date(recorded_on);
 
-		weight = '';
-	}
-
-	function editWeight(id: string) {
-		if (!weight_edit) {
-			toast.error('Enter a weight');
-			return;
-		}
-		onEdit(id, Number(weight_edit));
-
-		weight_edit = '';
-		editingId = null;
+		return {
+			month: date.toLocaleString('en-IE', { month: 'short' }).toUpperCase(),
+			dateNumber: date.getDate(),
+			day: date.toLocaleString('en-IE', { weekday: 'long' })
+		};
 	}
 </script>
 
-<div class="grid gap-3">
-	<Button variant="default" onclick={() => handleAddWeight()}>ADD WEIGHT BAYBEEE</Button>
-	<Input
-		id="weight"
-		type="number"
-		bind:value={weight}
-		placeholder="This is where you put them kg"
-	/>
-</div>
-
-<div class="grid gap-3">
+<div class="flex w-full flex-col gap-4">
 	{#each weights as entry (entry.id)}
-		<div class="rounded-xl border p-4">
-			<p class="text-2xl font-bold">{entry.weight_kg} kg</p>
-			<p class="text-sm opacity-70">{entry.recorded_on}</p>
+		{@const formattedDate = formatEntryDate(entry.recorded_on)}
 
-			<div class="mt-4 flex gap-2">
-				<Button variant="destructive" onclick={() => onDelete(entry.id)}>
-					<Trash />
-				</Button>
+		<Item.Root variant="outline">
+			{#snippet child({ props })}
+				<button type="button" {...props} onclick={() => (selectedEntry = entry)}>
+					<Item.Media>
+						<div
+							class="size-12 flex flex-col overflow-hidden rounded bg-white border border-sidebar-ring"
+						>
+							<div class="bg-red-600 py-0.5 text-center text-xs font-bold text-white">
+								{formattedDate.month}
+							</div>
 
-				{#if editingId === entry.id}
-					<Button onclick={() => editWeight(entry.id)}>Save</Button>
-				{:else}
-					<Button
-						variant="secondary"
-						onclick={() => {
-							editingId = entry.id;
-							weight_edit = String(entry.weight_kg);
-						}}
-					>
-						<Edit />
-					</Button>
-				{/if}
-			</div>
-			{#if editingId === entry.id}
-				<div class="mt-3">
-					<Input type="number" bind:value={weight_edit} />
-				</div>
-			{/if}
-		</div>
+							<div class="flex h-full items-center justify-center text-xs font-bold text-black">
+								{formattedDate.dateNumber}
+							</div>
+						</div>
+					</Item.Media>
+
+					<Item.Content class="h-full">
+						<Item.Title>
+							{entry.weight_kg}
+							<span class="text-muted-foreground">- kg</span>
+						</Item.Title>
+
+						<Item.Description>
+							{formattedDate.day}
+						</Item.Description>
+					</Item.Content>
+				</button>
+			{/snippet}
+		</Item.Root>
 	{/each}
 </div>
+
+<Drawer.Root
+	open={!!selectedEntry}
+	onOpenChange={(open) => {
+		if (!open) selectedEntry = null;
+	}}
+>
+	<Drawer.Content>
+		<Drawer.Footer>
+			<Button
+				variant="outline"
+				onclick={() => {
+					editingEntry = selectedEntry;
+					selectedEntry = null;
+				}}
+			>
+				Edit
+			</Button>
+
+			<Button
+				variant="destructive"
+				onclick={() => {
+					deletingEntry = selectedEntry;
+					selectedEntry = null;
+				}}
+			>
+				Delete
+			</Button>
+		</Drawer.Footer>
+	</Drawer.Content>
+</Drawer.Root>
+
+<EditWeightDialog entry={editingEntry} onClose={() => (editingEntry = null)} onSave={onEdit} />
+
+<DeleteWeightDialog
+	entry={deletingEntry}
+	onClose={() => (deletingEntry = null)}
+	onConfirm={onDelete}
+/>
