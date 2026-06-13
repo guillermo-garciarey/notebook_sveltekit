@@ -1,12 +1,8 @@
 <script lang="ts">
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
+	import { Spinner } from '$lib/components/ui/spinner/index.js';
 
-	type WeightEntry = {
-		id: string;
-		weight_kg: number;
-		recorded_on: string;
-	};
-
+	let deleting = $state(false);
 	let {
 		entry,
 		onClose,
@@ -17,11 +13,23 @@
 		onConfirm: (id: string) => void;
 	} = $props();
 
-	function handleDelete() {
+	type WeightEntry = {
+		id: string;
+		weight_kg: number;
+		recorded_on: string;
+	};
+
+	async function handleDelete() {
 		if (!entry) return;
 
-		onConfirm(entry.id);
-		onClose();
+		deleting = true;
+
+		try {
+			await onConfirm(entry.id);
+			onClose();
+		} finally {
+			deleting = false;
+		}
 	}
 </script>
 
@@ -48,7 +56,14 @@
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 
-			<AlertDialog.Action onclick={handleDelete}>Delete</AlertDialog.Action>
+			<AlertDialog.Action variant="destructive" onclick={handleDelete} disabled={deleting}
+				>{#if deleting}
+					<Spinner />
+					Deleting...
+				{:else}
+					Delete
+				{/if}</AlertDialog.Action
+			>
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
 </AlertDialog.Root>

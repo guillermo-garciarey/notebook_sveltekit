@@ -4,13 +4,19 @@
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { Button } from '$lib/components/ui/button';
-	import WeightChart from '$lib/components/weight-chart.svelte';
 	import type { WeightEntry } from '$lib/types/weight';
 	import WeightGallery from '$lib/components/weight-gallery.svelte';
 	import EditWeightDialog from '$lib/components/edit-weight-dialog.svelte';
 	import DeleteWeightDialog from '$lib/components/delete-weight-dialog.svelte';
+	import { Spinner } from '$lib/components/ui/spinner/index.js';
 
 	let activePanel = $state(0);
+	let adding = $state(false);
+	let weight = $state('');
+	let weights = $state<WeightEntry[]>([]);
+	let loading = $state(false);
+	let editingEntry = $state<WeightEntry | null>(null);
+	let deletingEntry = $state<WeightEntry | null>(null);
 
 	const panels = ['chart', 'history'];
 
@@ -21,13 +27,6 @@
 	function previousPanel() {
 		activePanel = Math.max(activePanel - 1, 0);
 	}
-
-	let weight = $state('');
-	let weights = $state<WeightEntry[]>([]);
-	let loading = $state(false);
-
-	let editingEntry = $state<WeightEntry | null>(null);
-	let deletingEntry = $state<WeightEntry | null>(null);
 
 	async function loadWeights() {
 		loading = true;
@@ -60,39 +59,50 @@
 	});
 
 	async function addWeight() {
-		if (!weight) {
-			toast.error('Enter a weight');
+		const parsedWeight = Number(weight);
+
+		if (!weight || Number.isNaN(parsedWeight)) {
+			toast.error('Enter a valid weight');
 			return;
 		}
 
-		const { data: userData, error: userError } = await supabase.auth.getUser();
+		adding = true;
 
-		if (userError || !userData.user) {
-			toast.error('You must be logged in');
-			return;
+		try {
+			const { data: userData, error: userError } = await supabase.auth.getUser();
+
+			if (userError || !userData.user) {
+				toast.error('You must be logged in');
+				return;
+			}
+
+			const recordedOn = new Date().toISOString().split('T')[0];
+
+			const { data, error } = await supabase
+				.from('weight_entries')
+				.insert({
+					user_id: userData.user.id,
+					weight_kg: parsedWeight,
+					recorded_on: recordedOn
+				})
+				.select()
+				.single();
+
+			if (error) {
+				console.error(error);
+				toast.error('Could not add weight');
+				return;
+			}
+
+			weights = sortWeights([data, ...weights]);
+			weight = '';
+			toast.success('Weight recorded');
+		} catch (err) {
+			console.error(err);
+			toast.error('Unexpected error adding weight');
+		} finally {
+			adding = false;
 		}
-
-		const newEntry = {
-			user_id: userData.user.id,
-			weight_kg: Number(weight),
-			recorded_on: new Date().toISOString().split('T')[0]
-		};
-
-		const { data, error } = await supabase
-			.from('weight_entries')
-			.insert(newEntry)
-			.select()
-			.single();
-
-		if (error) {
-			console.error(error);
-			toast.error('Could not add weight');
-			return;
-		}
-
-		weights = [data, ...weights];
-		weight = '';
-		toast.success('Weight recorded');
 	}
 
 	async function updateWeight(id: string, weight_kg: number, recorded_on: string) {
@@ -109,7 +119,7 @@
 			return;
 		}
 
-		weights = weights.map((entry) => (entry.id === id ? data : entry));
+		weights = sortWeights(weights.map((entry) => (entry.id === id ? data : entry)));
 		toast.success('Weight updated');
 	}
 
@@ -124,6 +134,10 @@
 
 		weights = weights.filter((entry) => entry.id !== id);
 		toast.success('Weight deleted');
+	}
+
+	function sortWeights(entries: WeightEntry[]) {
+		return [...entries].sort((a, b) => b.recorded_on.localeCompare(a.recorded_on));
 	}
 
 	async function logout() {
@@ -146,7 +160,14 @@
 	>
 		<section class="h-full w-full shrink-0 p-6">
 			<h1 class="text-3xl font-bold">Weight</h1>
-			<Button variant="default" onclick={addWeight}>ADD WEIGHT BAYBEEE</Button>
+			<Button variant="default" onclick={addWeight} disabled={adding}>
+				{#if adding}
+					<Spinner />
+					Adding...
+				{:else}
+					ADD WEIGHT BAYBEEE
+				{/if}
+			</Button>
 
 			<Input
 				id="weight"

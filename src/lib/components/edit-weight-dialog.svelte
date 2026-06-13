@@ -2,6 +2,11 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
+	import { Spinner } from '$lib/components/ui/spinner/index.js';
+
+	let saving = $state(false);
+	let editWeight = $state('');
+	let editDate = $state('');
 
 	type WeightEntry = {
 		id: string;
@@ -16,11 +21,8 @@
 	}: {
 		entry: WeightEntry | null;
 		onClose: () => void;
-		onSave: (id: string, weight_kg: number, recorded_on: string) => void;
+		onSave: (id: string, weight_kg: number, recorded_on: string) => Promise<void>;
 	} = $props();
-
-	let editWeight = $state('');
-	let editDate = $state('');
 
 	$effect(() => {
 		if (entry) {
@@ -32,8 +34,14 @@
 	async function handleSave() {
 		if (!entry) return;
 
-		await onSave(entry.id, Number(editWeight), editDate);
-		onClose();
+		saving = true;
+
+		try {
+			await onSave(entry.id, Number(editWeight), editDate);
+			onClose();
+		} finally {
+			saving = false;
+		}
 	}
 </script>
 
@@ -64,7 +72,14 @@
 		<Dialog.Footer>
 			<Button variant="outline" onclick={onClose}>Cancel</Button>
 
-			<Button onclick={handleSave}>Save</Button>
+			<Button onclick={handleSave} disabled={saving}>
+				{#if saving}
+					<Spinner />
+					Saving...
+				{:else}
+					Save
+				{/if}
+			</Button>
 		</Dialog.Footer>
 	</Dialog.Content>
 </Dialog.Root>
