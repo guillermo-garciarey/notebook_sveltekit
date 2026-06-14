@@ -10,24 +10,14 @@
 	import EditWeightDialog from '$lib/components/edit-weight-dialog.svelte';
 	import DeleteWeightDialog from '$lib/components/delete-weight-dialog.svelte';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
+	import ChartExample from '$lib/components/chart-example.svelte';
 
-	let activePanel = $state(0);
 	let adding = $state(false);
 	let weight = $state('');
 	let weights = $state<WeightEntry[]>([]);
 	let loading = $state(false);
 	let editingEntry = $state<WeightEntry | null>(null);
 	let deletingEntry = $state<WeightEntry | null>(null);
-
-	const panels = ['chart', 'history'];
-
-	function nextPanel() {
-		activePanel = Math.min(activePanel + 1, panels.length - 1);
-	}
-
-	function previousPanel() {
-		activePanel = Math.max(activePanel - 1, 0);
-	}
 
 	async function loadWeights() {
 		loading = true;
@@ -154,57 +144,45 @@
 	}
 </script>
 
-<div class="h-dvh overflow-hidden">
-	<div
-		class="flex h-full transition-transform duration-300 ease-out"
-		style={`transform: translateX(-${activePanel * 100}%);`}
-	>
-		<section class="h-full w-full shrink-0 p-6">
-			<h1 class="text-3xl font-bold">Weight</h1>
-			<Button variant="default" onclick={addWeight} disabled={adding}>
-				{#if adding}
-					<Spinner />
-					Adding...
-				{:else}
-					ADD WEIGHT BAYBEEE
-				{/if}
-			</Button>
-
-			<Input
-				id="weight"
-				type="number"
-				bind:value={weight}
-				placeholder="This is where you put them kg"
-			/>
-			{#if weights.length > 0}
-				<!-- <WeightChart {weights} /> -->
+<div class="h-full overflow-y-auto snap-y snap-mandatory">
+	<section class="h-full snap-start p-6">
+		<!-- <Button variant="default" onclick={addWeight} disabled={adding}>
+			{#if adding}
+				<Spinner />
+				Adding...
+			{:else}
+				ADD WEIGHT BAYBEEE
 			{/if}
-			<Button onclick={logout}>Logout</Button>
+		</Button>
 
-			<button onclick={nextPanel}> Go to history → </button>
-		</section>
+		<Input
+			id="weight"
+			type="number"
+			bind:value={weight}
+			placeholder="This is where you put them kg"
+		/>-->
 
-		<section class="h-full w-full shrink-0 p-6">
-			<button onclick={previousPanel}> ← Back to chart </button>
+		{#if weights.length > 0}
+			<ChartExample />
+			<!-- <WeightChart {weights} /> -->
+		{/if}
 
-			<h1 class="text-3xl font-bold">History</h1>
+		<!-- <Button onclick={logout}>Logout</Button>-->
+	</section>
 
-			<div class="mt-4 h-[calc(100dvh-10rem)] overflow-y-auto">
-				{#if loading}
-					<p>Loading weights...</p>
-				{:else if weights.length === 0}
-					<p>No weights yet.</p>
-				{:else}
-					<WeightGallery
-						{weights}
-						onDelete={(entry) => (deletingEntry = entry)}
-						onEdit={(entry) => (editingEntry = entry)}
-					/>
-				{/if}
-			</div>
-		</section>
-	</div>
-	<!-- Dialogs -->
+	<section class="min-h-full snap-start p-6">
+		{#if loading}
+			<p>Loading weights...</p>
+		{:else if weights.length === 0}
+			<p>No weights yet.</p>
+		{:else}
+			<WeightGallery
+				{weights}
+				onDelete={(entry) => (deletingEntry = entry)}
+				onEdit={(entry) => (editingEntry = entry)}
+			/>
+		{/if}
+	</section>
 
 	<EditWeightDialog
 		entry={editingEntry}

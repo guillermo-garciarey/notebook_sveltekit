@@ -21,23 +21,25 @@
 	});
 </script>
 
-{#if checkingAuth}
-	<div class="flex min-h-dvh items-center justify-center">
-		<p>Loading...</p>
-	</div>
-{:else}
-	<div class="flex min-h-dvh flex-col">
-		<header class="h-20 shrink-0">
-			<!-- Header -->
-		</header>
+<div class="h-dvh overflow-hidden flex flex-col">
+	{#if checkingAuth}
+		<div class="flex min-h-dvh items-center justify-center">
+			<p>Loading...</p>
+		</div>
+	{:else}
+		<div class="flex min-h-dvh flex-col">
+			<header class="h-20 shrink-0">
+				<!-- Header -->
+			</header>
 
-		<main class="min-h-0 flex-1 justify-center flex-col flex">
-			{@render children()}
-		</main>
+			<main class="min-h-0 flex-1 justify-center flex-col flex">
+				{@render children()}
+			</main>
 
-		<footer class="h-20 shrink-0">
-			<!-- Bottom Nav -->
-			<BottomNav />
-		</footer>
-	</div>
-{/if}
+			<footer class="h-20 shrink-0">
+				<!-- Bottom Nav -->
+				<BottomNav />
+			</footer>
+		</div>
+	{/if}
+</div>

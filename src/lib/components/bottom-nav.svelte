@@ -3,6 +3,11 @@
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import { Avatar } from '$lib/components/ui/avatar/index.js';
 	import { Menu, Plus } from '@lucide/svelte';
+	import { afterNavigate } from '$app/navigation';
+	let open = $state(false);
+	afterNavigate(() => {
+		open = false;
+	});
 </script>
 
 <nav class="flex h-20 items-center justify-between px-5">
@@ -17,7 +22,7 @@
 			<Plus class="size-5" />
 		</Button>
 
-		<Drawer.Root direction="right">
+		<Drawer.Root direction="right" bind:open>
 			<Drawer.Trigger>
 				{#snippet child({ props })}
 					<Button class="size-11" variant="outline" {...props}>
@@ -28,8 +33,8 @@
 
 			<Drawer.Content class="inset-y-0 right-0 left-auto  h-dvh">
 				<div class="grid gap-8 p-4 m-auto">
-					<Button variant="ghost" class="justify-start">Home</Button>
-					<Button variant="ghost" class="justify-start">Trackers</Button>
+					<Button variant="ghost" class="justify-start" href="/">Home</Button>
+					<Button variant="ghost" class="justify-start" href="/trackers">Trackers</Button>
 					<Button variant="ghost" class="justify-start">Activities</Button>
 					<Button variant="ghost" class="justify-start">Settings</Button>
 				</div>
