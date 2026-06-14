@@ -7,14 +7,14 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import { toast } from 'svelte-sonner';
-	let { class: className, ...restProps }: HTMLAttributes<HTMLDivElement> = $props();
 
 	import { supabase } from '$lib/supabase';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let email = $state('');
 	let password = $state('');
-
+	let { class: className, ...restProps }: HTMLAttributes<HTMLDivElement> = $props();
 	async function signUp() {
 		const { error } = await supabase.auth.signUp({
 			email,
@@ -26,7 +26,7 @@
 			return;
 		}
 
-		goto('/login');
+		goto(resolve('/login'));
 	}
 </script>
 
@@ -70,7 +70,7 @@
 					<Field.Field>
 						<Button type="submit">Create Account</Button>
 						<Field.Description class="text-center">
-							Already have an account? <a href="/login">Sign in</a>
+							Already have an account? <a href={resolve('/login')}>Sign in</a>
 						</Field.Description>
 					</Field.Field>
 				</Field.Group>

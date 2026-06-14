@@ -3,7 +3,6 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Item from '$lib/components/ui/item/index.js';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
-	import { draw } from 'svelte/transition';
 
 	let selectedEntry = $state<WeightEntry | null>(null);
 	let drawerOpen = $state(false);

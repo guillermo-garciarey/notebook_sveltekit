@@ -56,7 +56,7 @@
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 
-			<AlertDialog.Action variant="destructive" onclick={handleDelete} disabled={deleting}
+			<AlertDialog.Action variant="destructive" size="lg" onclick={handleDelete} disabled={deleting}
 				>{#if deleting}
 					<Spinner />
 					Deleting...

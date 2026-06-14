@@ -13,15 +13,16 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 	import { toast } from 'svelte-sonner';
-	let { class: className, ...restProps }: HTMLAttributes<HTMLDivElement> = $props();
-	const id = $props.id();
 
 	import { supabase } from '$lib/supabase';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	let email = $state('');
 	let password = $state('');
 	let message = $state('');
+	let { class: className, ...restProps }: HTMLAttributes<HTMLDivElement> = $props();
+	const id = $props.id();
 
 	async function login(event: SubmitEvent) {
 		event.preventDefault();
@@ -36,7 +37,7 @@
 			return;
 		}
 
-		goto('/');
+		goto(resolve('/'));
 	}
 </script>
 
@@ -98,7 +99,7 @@
 							<p class="text-center text-sm text-destructive">{message}</p>
 						{/if}
 						<FieldDescription class="text-center">
-							Don't have an account? <a href="/signup">Sign up</a>
+							Don't have an account? <a href={resolve('/signup')}>Sign up</a>
 						</FieldDescription>
 					</Field>
 				</FieldGroup>

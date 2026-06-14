@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { supabase } from '$lib/supabase';
+	import { resolve } from '$app/paths';
+	import BottomNav from '$lib/components/bottom-nav.svelte';
 
 	let { children } = $props();
 
@@ -11,8 +13,7 @@
 		const { data } = await supabase.auth.getSession();
 
 		if (!data.session) {
-			// eslint-disable-next-line svelte/no-navigation-without-resolve
-			goto('/login');
+			goto(resolve('/login'));
 			return;
 		}
 
@@ -21,9 +22,22 @@
 </script>
 
 {#if checkingAuth}
-	<div class="flex w-full min-h-screen items-center justify-center">
+	<div class="flex min-h-dvh items-center justify-center">
 		<p>Loading...</p>
 	</div>
 {:else}
-	{@render children()}
+	<div class="flex min-h-dvh flex-col">
+		<header class="h-20 shrink-0">
+			<!-- Header -->
+		</header>
+
+		<main class="min-h-0 flex-1 justify-center flex-col flex">
+			{@render children()}
+		</main>
+
+		<footer class="h-20 shrink-0">
+			<!-- Bottom Nav -->
+			<BottomNav />
+		</footer>
+	</div>
 {/if}
