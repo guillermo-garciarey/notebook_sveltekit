@@ -4,6 +4,7 @@
 	import { supabase } from '$lib/supabase';
 	import { resolve } from '$app/paths';
 	import BottomNav from '$lib/components/bottom-nav.svelte';
+	import { Book } from '@lucide/svelte';
 
 	let { children } = $props();
 
@@ -28,7 +29,7 @@
 		</div>
 	{:else}
 		<div class="flex min-h-dvh flex-col">
-			<header class="h-20 shrink-0">
+			<header class="h-20 shrink-0 flex px-8 items-end gap-4 text-2xl">
 				<!-- Header -->
 			</header>
 

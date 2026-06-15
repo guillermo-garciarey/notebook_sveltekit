@@ -10,7 +10,6 @@
 	import EditWeightDialog from '$lib/components/edit-weight-dialog.svelte';
 	import DeleteWeightDialog from '$lib/components/delete-weight-dialog.svelte';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
-	import ChartExample from '$lib/components/chart-example.svelte';
 
 	let adding = $state(false);
 	let weight = $state('');
@@ -130,18 +129,6 @@
 	function sortWeights(entries: WeightEntry[]) {
 		return [...entries].sort((a, b) => b.recorded_on.localeCompare(a.recorded_on));
 	}
-
-	async function logout() {
-		const { error } = await supabase.auth.signOut();
-
-		if (error) {
-			toast.error(error.message);
-			return;
-		}
-
-		toast.success('Logged out');
-		goto(resolve('/login'));
-	}
 </script>
 
 <div class="h-full overflow-y-auto snap-y snap-mandatory">
@@ -161,11 +148,6 @@
 			bind:value={weight}
 			placeholder="This is where you put them kg"
 		/>-->
-
-		{#if weights.length > 0}
-			<ChartExample />
-			<!-- <WeightChart {weights} /> -->
-		{/if}
 
 		<!-- <Button onclick={logout}>Logout</Button>-->
 	</section>

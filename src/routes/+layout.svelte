@@ -9,6 +9,6 @@
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 
 <ModeWatcher />
-<Toaster richColors position="top-center" />
+<Toaster richColors position="bottom-center" />
 
 {@render children()}

@@ -5,6 +5,7 @@
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import { flip } from 'svelte/animate';
 	import { fly } from 'svelte/transition';
+	import Spinner from './ui/spinner/spinner.svelte';
 
 	let selectedEntry = $state<WeightEntry | null>(null);
 	let drawerOpen = $state(false);
@@ -45,6 +46,10 @@
 <div class="flex w-full flex-col gap-4">
 	{#each weights as entry (entry.id)}
 		{@const formattedDate = formatEntryDate(entry.recorded_on)}
+		{@const change = oldestWeight !== null ? entry.weight_kg - oldestWeight : null}
+		{@const isDown = change !== null && change < 0}
+		{@const isUp = change !== null && change > 0}
+
 		<div animate:flip in:fly={{ x: 150, duration: 500 }} out:fly={{ y: -30, duration: 250 }}>
 			<Item.Root variant="outline">
 				{#snippet child({ props })}
@@ -67,9 +72,17 @@
 							<Item.Title class="w-full">
 								{entry.weight_kg}
 								<span class="text-muted-foreground"> kg</span>
-								{#if oldestWeight !== null}
-									<span class="ml-auto text-muted-foreground">
-										{(oldestWeight - entry.weight_kg).toFixed(1)} kg
+								{#if change !== null}
+									<span
+										class={[
+											'ml-auto flex items-center gap-1',
+
+											change === 0 && 'text-muted-foreground',
+											isDown && 'text-green-900',
+											isUp && 'text-red-600'
+										]}
+									>
+										{change.toFixed(1)} kg
 									</span>
 								{/if}
 							</Item.Title>
