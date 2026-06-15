@@ -161,16 +161,10 @@
 			<WeightGallery
 				{weights}
 				onDelete={(entry) => (deletingEntry = entry)}
-				onEdit={(entry) => (editingEntry = entry)}
+				onEdit={updateWeight}
 			/>
 		{/if}
 	</section>
-
-	<EditWeightDialog
-		entry={editingEntry}
-		onClose={() => (editingEntry = null)}
-		onSave={updateWeight}
-	/>
 
 	<DeleteWeightDialog
 		entry={deletingEntry}

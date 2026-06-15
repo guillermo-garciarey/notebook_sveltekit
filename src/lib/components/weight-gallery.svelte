@@ -6,9 +6,15 @@
 	import { flip } from 'svelte/animate';
 	import { fly } from 'svelte/transition';
 	import Spinner from './ui/spinner/spinner.svelte';
+	import { Input } from '$lib/components/ui/input/index.js';
+	import { Label } from '$lib/components/ui/label/index.js';
+	import { Ellipsis } from '@lucide/svelte';
 
 	let selectedEntry = $state<WeightEntry | null>(null);
 	let drawerOpen = $state(false);
+	let saving = $state(false);
+	let editWeight = $state('');
+	let editDate = $state('');
 
 	let {
 		weights,
@@ -17,10 +23,28 @@
 	}: {
 		weights: WeightEntry[];
 		onDelete: (entry: WeightEntry) => void;
-		onEdit: (entry: WeightEntry) => void;
+		onEdit: (id: string, weight_kg: number, recorded_on: string) => Promise<void>;
 	} = $props();
 
-	let oldestWeight = $derived(weights.length > 0 ? weights[weights.length - 1].weight_kg : null);
+	$effect(() => {
+		if (selectedEntry) {
+			editWeight = String(selectedEntry.weight_kg);
+			editDate = selectedEntry.recorded_on;
+		}
+	});
+
+	async function handleSave() {
+		if (!selectedEntry) return;
+
+		saving = true;
+
+		try {
+			await onEdit(selectedEntry.id, Number(editWeight), editDate);
+			closeDrawer();
+		} finally {
+			saving = false;
+		}
+	}
 
 	function openDrawer(entry: WeightEntry) {
 		selectedEntry = entry;
@@ -46,9 +70,6 @@
 <div class="flex w-full flex-col gap-4">
 	{#each weights as entry (entry.id)}
 		{@const formattedDate = formatEntryDate(entry.recorded_on)}
-		{@const change = oldestWeight !== null ? entry.weight_kg - oldestWeight : null}
-		{@const isDown = change !== null && change < 0}
-		{@const isUp = change !== null && change > 0}
 
 		<div animate:flip in:fly={{ x: 150, duration: 500 }} out:fly={{ y: -30, duration: 250 }}>
 			<Item.Root variant="outline">
@@ -70,21 +91,9 @@
 
 						<Item.Content class="h-full">
 							<Item.Title class="w-full">
-								{entry.weight_kg}
-								<span class="text-muted-foreground"> kg</span>
-								{#if change !== null}
-									<span
-										class={[
-											'ml-auto flex items-center gap-1',
-
-											change === 0 && 'text-muted-foreground',
-											isDown && 'text-green-900',
-											isUp && 'text-red-600'
-										]}
-									>
-										{change.toFixed(1)} kg
-									</span>
-								{/if}
+								{entry.weight_kg.toFixed(1)}
+								<span class="text-muted-foreground">kg</span>
+								<Ellipsis class="ml-auto size-3" />
 							</Item.Title>
 
 							<Item.Description>
@@ -109,19 +118,32 @@
 	}}
 >
 	<Drawer.Content>
-		<Drawer.Footer>
-			<Button
-				size="lg"
-				variant="outline"
-				onclick={() => {
-					if (!selectedEntry) return;
-					onEdit(selectedEntry);
-					closeDrawer();
-				}}
-			>
-				Edit
-			</Button>
+		<Drawer.Header>
+			<Drawer.Title>Editing entry</Drawer.Title>
+			<Drawer.Description>Update the weight or date for this entry.</Drawer.Description>
+		</Drawer.Header>
 
+		<form class="grid items-start gap-4 p-4">
+			<div class="grid gap-2">
+				<Label>Weight</Label>
+				<Input type="number" step="0.1" bind:value={editWeight} />
+			</div>
+
+			<div class="grid gap-2">
+				<Label>Date</Label>
+				<Input type="date" bind:value={editDate} />
+			</div>
+		</form>
+
+		<Drawer.Footer>
+			<Button variant="outline" onclick={handleSave} disabled={saving}>
+				{#if saving}
+					<Spinner />
+					Saving...
+				{:else}
+					Save changes
+				{/if}
+			</Button>
 			<Button
 				size="lg"
 				variant="destructive"

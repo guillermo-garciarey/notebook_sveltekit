@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button/index.js';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
-	import { Menu } from '@lucide/svelte';
+	import { Menu, Plus } from '@lucide/svelte';
 	import { afterNavigate } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
@@ -25,8 +25,12 @@
 	}
 </script>
 
-<nav class="flex h-20 items-center justify-end px-4">
+<nav class="flex h-20 items-center justify-end px-4 gap-4">
 	<!-- Left: avatar -->
+
+	<Button class="size-11" variant="outline">
+		<Plus class="size-5" />
+	</Button>
 
 	<!-- Right: actions -->
 	<div class="flex items-center gap-3">
