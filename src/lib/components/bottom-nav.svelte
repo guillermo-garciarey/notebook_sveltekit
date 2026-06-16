@@ -7,7 +7,10 @@
 	import { goto } from '$app/navigation';
 	import { supabase } from '$lib/supabase';
 	import { resolve } from '$app/paths';
+	import { quickAction } from '$lib/stores/quickAction';
+
 	let open = $state(false);
+
 	afterNavigate(() => {
 		open = false;
 	});
@@ -28,7 +31,7 @@
 <nav class="flex h-20 items-center justify-end px-4 gap-4">
 	<!-- Left: avatar -->
 
-	<Button class="size-11" variant="outline">
+	<Button onclick={() => $quickAction?.()} class="size-11" variant="outline">
 		<Plus class="size-5" />
 	</Button>
 

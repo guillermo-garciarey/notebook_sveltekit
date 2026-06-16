@@ -4,7 +4,6 @@
 	import { supabase } from '$lib/supabase';
 	import { resolve } from '$app/paths';
 	import BottomNav from '$lib/components/bottom-nav.svelte';
-	import { Book } from '@lucide/svelte';
 
 	let { children } = $props();
 
@@ -29,8 +28,11 @@
 		</div>
 	{:else}
 		<div class="flex min-h-dvh flex-col">
-			<header class="h-20 shrink-0 flex px-8 items-end gap-4 text-2xl">
-				<!-- Header -->
+			<header class="h-28 shrink-0 overflow-hidden px-8 flex items-center relative">
+				<div class="absolute bottom-0 right-0 left-8 h-0.5 bg-foreground"></div>
+				<h1 class="font-mono text-5xl font-bold leading-none tracking-widest">
+					<span class="text-primary">N</span>OTEBOOK
+				</h1>
 			</header>
 
 			<main class="min-h-0 flex-1 justify-center flex-col flex">

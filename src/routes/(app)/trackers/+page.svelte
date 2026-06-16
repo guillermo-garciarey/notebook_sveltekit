@@ -1,21 +1,31 @@
 <script lang="ts">
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { supabase } from '$lib/supabase';
-	import { goto } from '$app/navigation';
-	import { resolve } from '$app/paths';
 	import { toast } from 'svelte-sonner';
 	import { Button } from '$lib/components/ui/button';
 	import type { WeightEntry } from '$lib/types/weight';
 	import WeightGallery from '$lib/components/weight-gallery.svelte';
-	import EditWeightDialog from '$lib/components/edit-weight-dialog.svelte';
 	import DeleteWeightDialog from '$lib/components/delete-weight-dialog.svelte';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
+	import { onDestroy } from 'svelte';
+	import { quickAction } from '$lib/stores/quickAction';
+	import * as Drawer from '$lib/components/ui/drawer/index.js';
+	import EmptyWeights from '$lib/components/empty-weights.svelte';
+
+	let addWeightDrawerOpen = $state(false);
+
+	quickAction.set(() => {
+		addWeightDrawerOpen = true;
+	});
+
+	onDestroy(() => {
+		quickAction.set(null);
+	});
 
 	let adding = $state(false);
 	let weight = $state('');
 	let weights = $state<WeightEntry[]>([]);
 	let loading = $state(false);
-	let editingEntry = $state<WeightEntry | null>(null);
 	let deletingEntry = $state<WeightEntry | null>(null);
 
 	async function loadWeights() {
@@ -86,6 +96,7 @@
 
 			weights = sortWeights([data, ...weights]);
 			weight = '';
+			addWeightDrawerOpen = false;
 			toast.success('Weight recorded');
 		} catch (err) {
 			console.error(err);
@@ -133,30 +144,17 @@
 
 <div class="h-full overflow-y-auto snap-y snap-mandatory">
 	<section class="h-full snap-start p-6">
-		<!-- <Button variant="default" onclick={addWeight} disabled={adding}>
-			{#if adding}
-				<Spinner />
-				Adding...
-			{:else}
-				ADD WEIGHT BAYBEEE
-			{/if}
-		</Button>
-
-		<Input
-			id="weight"
-			type="number"
-			bind:value={weight}
-			placeholder="This is where you put them kg"
-		/>-->
-
-		<!-- <Button onclick={logout}>Logout</Button>-->
+		<div class="flex h-full items-center justify-center text-center">
+			<p class="text-muted-foreground">
+				hey guillermo, you have logged <strong class="text-foreground">87</strong> entries this year
+			</p>
+		</div>
 	</section>
-
 	<section class="min-h-full snap-start p-6">
 		{#if loading}
 			<p>Loading weights...</p>
 		{:else if weights.length === 0}
-			<p>No weights yet.</p>
+			<EmptyWeights />
 		{:else}
 			<WeightGallery
 				{weights}
@@ -172,3 +170,25 @@
 		onConfirm={deleteWeight}
 	/>
 </div>
+
+<Drawer.Root bind:open={addWeightDrawerOpen}>
+	<Drawer.Content>
+		<div class="grid gap-4 p-6">
+			<Drawer.Header>
+				<Drawer.Title>Add weight</Drawer.Title>
+				<Drawer.Description>Record today’s weight entry.</Drawer.Description>
+			</Drawer.Header>
+
+			<Input id="weight" type="number" bind:value={weight} placeholder="Weight in kg" />
+
+			<Button onclick={addWeight} disabled={adding}>
+				{#if adding}
+					<Spinner />
+					Adding...
+				{:else}
+					Add weight
+				{/if}
+			</Button>
+		</div>
+	</Drawer.Content>
+</Drawer.Root>
