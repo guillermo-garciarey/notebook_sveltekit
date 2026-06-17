@@ -142,7 +142,7 @@
 	}
 </script>
 
-<div class="h-full overflow-y-auto snap-y snap-mandatory">
+<div class="h-full overflow-y-auto snap-y snap-mandatory scrollbar-none">
 	<section class="h-full snap-start p-6">
 		<div class="flex h-full items-center justify-center text-center">
 			<p class="text-muted-foreground">

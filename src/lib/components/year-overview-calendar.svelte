@@ -59,14 +59,6 @@
 
 <main class="flex min-h-0 flex-1 items-center justify-center">
 	<div class="flex h-[68dvh] w-full max-w-xl flex-col">
-		<div
-			class="mb-4 grid grid-cols-12 border-b border-border pb-4 text-center text-sm font-semibold"
-		>
-			{#each months as month}
-				<div>{month}</div>
-			{/each}
-		</div>
-
 		<div class="grid min-h-0 flex-1 grid-cols-12">
 			{#each months as month, monthIndex}
 				<div class="grid min-h-0 grid-rows-[repeat(31,minmax(0,1fr))]">
@@ -75,19 +67,17 @@
 							<div class="flex min-h-0 items-stretch justify-center">
 								<button
 									class={[
-										'w-3 self-center rounded-full border-0 bg-muted p-0',
+										'w-3 self-center border-0 bg-muted p-0',
 										'h-3',
 										isCompleted(monthIndex, day) && 'h-full self-stretch rounded-none bg-primary',
 										isCompleted(monthIndex, day) &&
 											!isCompleted(monthIndex, day - 1) &&
-											'rounded-t-full',
-										isCompleted(monthIndex, day) &&
+											isCompleted(monthIndex, day) &&
 											!isCompleted(monthIndex, day + 1) &&
-											'rounded-b-full',
-										isCompleted(monthIndex, day) &&
+											isCompleted(monthIndex, day) &&
 											!isCompleted(monthIndex, day - 1) &&
 											!isCompleted(monthIndex, day + 1) &&
-											'h-3 self-center rounded-full',
+											'h-3 self-center',
 										monthIndex === currentMonth &&
 											day === currentDay &&
 											'outline-2 outline-offset-3 outline-foreground'
