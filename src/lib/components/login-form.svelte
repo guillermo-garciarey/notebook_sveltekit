@@ -5,8 +5,7 @@
 		FieldGroup,
 		Field,
 		FieldLabel,
-		FieldDescription,
-		FieldSeparator
+		FieldDescription
 	} from '$lib/components/ui/field/index.js';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { cn } from '$lib/utils.js';
@@ -53,7 +52,7 @@
 					<Field>
 						<FieldLabel for="email-{id}">Email</FieldLabel>
 						<Input
-							class="shadow-md"
+							class=""
 							id="email-{id}"
 							type="email"
 							placeholder="mail@example.com"
@@ -68,13 +67,7 @@
 								Forgot your password?
 							</a>
 						</div>
-						<Input
-							class="shadow-md"
-							id="password-{id}"
-							type="password"
-							bind:value={password}
-							required
-						/>
+						<Input class="" id="password-{id}" type="password" bind:value={password} required />
 					</Field>
 					<Field>
 						<Button class="shadow-md" type="submit">Login</Button>

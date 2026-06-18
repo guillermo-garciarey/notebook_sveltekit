@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as AlertDialog from '$lib/components/ui/alert-dialog/index.js';
 	import { Spinner } from '$lib/components/ui/spinner/index.js';
+	import { Trash, CircleX } from '@lucide/svelte';
 
 	let deleting = $state(false);
 	let {
@@ -54,7 +55,7 @@
 		</AlertDialog.Header>
 
 		<AlertDialog.Footer>
-			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+			<AlertDialog.Cancel><CircleX />Cancel</AlertDialog.Cancel>
 
 			<AlertDialog.Action
 				class="shadow-md"
@@ -66,7 +67,7 @@
 					<Spinner />
 					Deleting...
 				{:else}
-					Delete
+					<Trash />Delete
 				{/if}</AlertDialog.Action
 			>
 		</AlertDialog.Footer>

@@ -55,6 +55,7 @@
 					<Button variant="ghost" class="justify-start">Settings</Button>
 					<Button variant="ghost" class="justify-start" onclick={logout}>Logout</Button>
 				</div>
+
 				<ThemeToggle />
 			</Drawer.Content>
 		</Drawer.Root>

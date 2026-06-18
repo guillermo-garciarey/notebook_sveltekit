@@ -8,7 +8,8 @@
 	import Spinner from './ui/spinner/spinner.svelte';
 	import { Input } from '$lib/components/ui/input/index.js';
 	import { Label } from '$lib/components/ui/label/index.js';
-	import { Ellipsis } from '@lucide/svelte';
+	import { Ellipsis, Save, Trash } from '@lucide/svelte';
+	import DateTile from '$lib/components/date-tile.svelte';
 
 	let selectedEntry = $state<WeightEntry | null>(null);
 	let drawerOpen = $state(false);
@@ -76,17 +77,7 @@
 				{#snippet child({ props })}
 					<button class="" type="button" {...props} onclick={() => openDrawer(entry)}>
 						<Item.Media>
-							<div
-								class="shadow-md size-12 flex flex-col overflow-hidden bg-white border border-border"
-							>
-								<div class="bg-red-600 py-0.5 text-center text-xs font-bold text-white">
-									{formattedDate.month}
-								</div>
-
-								<div class="flex h-full items-center justify-center text-xs font-bold text-black">
-									{formattedDate.dateNumber}
-								</div>
-							</div>
+							<DateTile date={entry.recorded_on} />
 						</Item.Media>
 
 						<Item.Content class="h-full">
@@ -120,18 +111,22 @@
 	<Drawer.Content>
 		<Drawer.Header>
 			<Drawer.Title>Editing entry</Drawer.Title>
-			<Drawer.Description>Update the weight or date for this entry.</Drawer.Description>
 		</Drawer.Header>
 
 		<form class="grid items-start gap-4 p-4">
+			{#if selectedEntry}
+				<div class="grid justify-center gap-2">
+					<DateTile date={editDate} />
+				</div>
+			{/if}
 			<div class="grid gap-2">
 				<Label>Weight</Label>
-				<Input class="shadow-md" type="number" step="0.1" bind:value={editWeight} />
+				<Input class="" type="number" step="0.1" bind:value={editWeight} />
 			</div>
 
 			<div class="grid gap-2">
 				<Label>Date</Label>
-				<Input class="shadow-md" type="date" bind:value={editDate} />
+				<Input class="" type="date" bind:value={editDate} />
 			</div>
 		</form>
 
@@ -141,7 +136,7 @@
 					<Spinner />
 					Saving...
 				{:else}
-					Save changes
+					<Save />Save changes
 				{/if}
 			</Button>
 			<Button
@@ -154,7 +149,7 @@
 					closeDrawer();
 				}}
 			>
-				Delete
+				<Trash />Delete
 			</Button>
 		</Drawer.Footer>
 	</Drawer.Content>

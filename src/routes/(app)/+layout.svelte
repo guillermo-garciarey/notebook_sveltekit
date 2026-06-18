@@ -8,6 +8,7 @@
 	import { pageTitle } from '$lib/stores/pageTitle';
 	import AddWeightDrawer from '$lib/components/add-weight-drawer.svelte';
 	import { quickAction } from '$lib/stores/quickAction';
+	import LoadingWeights from '$lib/components/loading-weights.svelte';
 	let addWeightDrawerOpen = $state(false);
 
 	pageTitle.set('NOTEBOOK');
@@ -35,11 +36,11 @@
 <div class="h-dvh overflow-hidden flex flex-col">
 	{#if checkingAuth}
 		<div class="flex min-h-dvh items-center justify-center">
-			<p>Loading...</p>
+			<LoadingWeights />
 		</div>
 	{:else}
 		<div class="flex min-h-dvh flex-col">
-			<header class="h-20 shrink-0 overflow-hidden px-4 flex items-center relative gap-4">
+			<header class=" shrink-0 overflow-hidden p-6 flex items-center relative gap-4">
 				<HeaderAvatar />
 				<p class="font-sans leading-none tracking-[0.25rem] uppercase">{$pageTitle}</p>
 			</header>
