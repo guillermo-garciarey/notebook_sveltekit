@@ -5,6 +5,16 @@
 	import { resolve } from '$app/paths';
 	import BottomNav from '$lib/components/bottom-nav.svelte';
 	import HeaderAvatar from '$lib/components/header-avatar.svelte';
+	import { pageTitle } from '$lib/stores/pageTitle';
+	import AddWeightDrawer from '$lib/components/add-weight-drawer.svelte';
+	import { quickAction } from '$lib/stores/quickAction';
+	let addWeightDrawerOpen = $state(false);
+
+	pageTitle.set('NOTEBOOK');
+
+	quickAction.set(() => {
+		addWeightDrawerOpen = true;
+	});
 
 	let { children } = $props();
 
@@ -31,7 +41,7 @@
 		<div class="flex min-h-dvh flex-col">
 			<header class="h-20 shrink-0 overflow-hidden px-4 flex items-center relative gap-4">
 				<HeaderAvatar />
-				<p class="font-sans leading-none tracking-[0.25rem] uppercase">Notebook</p>
+				<p class="font-sans leading-none tracking-[0.25rem] uppercase">{$pageTitle}</p>
 			</header>
 
 			<main class="min-h-0 flex-1 justify-center flex-col flex">
@@ -45,4 +55,5 @@
 			</footer>
 		</div>
 	{/if}
+	<AddWeightDrawer bind:open={addWeightDrawerOpen} />
 </div>

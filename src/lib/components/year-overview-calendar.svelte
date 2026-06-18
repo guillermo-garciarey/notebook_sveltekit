@@ -1,4 +1,6 @@
-<script>
+<script lang="ts">
+	import { weights, loadWeights } from '$lib/stores/weights';
+
 	const year = 2026;
 
 	const months = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
@@ -8,53 +10,40 @@
 	const currentMonth = today.getMonth();
 	const currentDay = today.getDate() - 1;
 
-	const completed = new Set([
-		'0-2',
-		'0-3',
-		'0-4',
-		'1-7',
-		'1-8',
-		'2-1',
-		'3-10',
-		'3-11',
-		'3-12',
-		'3-13',
-		'4-2',
-		'4-5',
-		'4-6',
-		'5-1',
-		'5-2',
-		'5-3',
-		'5-10',
-		'6-12',
-		'6-13',
-		'6-14',
-		'8-3',
-		'8-4',
-		'10-20',
-		'10-21',
-		'10-22',
-		'10-23',
-		'11-5'
-	]);
-
-	function key(monthIndex, day) {
+	function key(monthIndex: number, day: number) {
 		return `${monthIndex}-${day}`;
 	}
 
-	function isCompleted(monthIndex, day) {
+	let completed = $derived(
+		new Set(
+			$weights
+				.filter((entry) => entry.recorded_on.startsWith(String(year)))
+				.map((entry) => {
+					const date = new Date(`${entry.recorded_on}T00:00:00`);
+					return key(date.getMonth(), date.getDate() - 1);
+				})
+		)
+	);
+
+	function isCompleted(monthIndex: number, day: number) {
 		return completed.has(key(monthIndex, day));
 	}
 
-	function isValidDay(monthIndex, day) {
+	function isValidDay(monthIndex: number, day: number) {
 		const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 		return day < daysInMonth;
 	}
 
-	function openQuickAction(monthIndex, day) {
+	function openQuickAction(monthIndex: number, day: number) {
 		const selectedDate = new Date(year, monthIndex, day + 1);
 		console.log(selectedDate);
 	}
+
+	$effect(() => {
+		if ($weights.length === 0) {
+			void loadWeights();
+		}
+	});
 </script>
 
 <main class="flex min-h-0 flex-1 items-center justify-center">
@@ -69,7 +58,7 @@
 									class={[
 										'w-3 self-center border-0 bg-muted p-0',
 										'h-3',
-										isCompleted(monthIndex, day) && 'h-full self-stretch rounded-none bg-primary',
+										isCompleted(monthIndex, day) && ' self-center rounded-none bg-primary',
 										isCompleted(monthIndex, day) &&
 											!isCompleted(monthIndex, day - 1) &&
 											isCompleted(monthIndex, day) &&
@@ -78,9 +67,7 @@
 											!isCompleted(monthIndex, day - 1) &&
 											!isCompleted(monthIndex, day + 1) &&
 											'h-3 self-center',
-										monthIndex === currentMonth &&
-											day === currentDay &&
-											'outline-2 outline-offset-3 outline-foreground'
+										monthIndex === currentMonth && day === currentDay && 'outline-2'
 									]}
 									onclick={() => openQuickAction(monthIndex, day)}
 									aria-label={`Open ${month} ${day + 1}`}
