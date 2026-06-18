@@ -94,7 +94,7 @@
 					onclick={() => handleDayClick(day)}
 					class={[
 						'relative aspect-square rounded-none border-0 text-left text-xs transition',
-						hasEntry(day) ? 'bg-primary text-white' : 'bg-muted/40 text-muted-foreground',
+						hasEntry(day) ? 'bg-primary text-white' : 'bg-muted text-muted-foreground',
 						isToday(day)
 							? 'outline outline-2 outline-offset-[-2px] outline-foreground text-foreground font-bold'
 							: ''
