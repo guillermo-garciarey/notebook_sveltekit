@@ -60,19 +60,19 @@
 		<div class="space-y-4">
 			<div class="space-y-2">
 				<label for="weight">Weight</label>
-				<Input id="weight" type="number" step="0.1" bind:value={editWeight} />
+				<Input class="shadow-md" id="weight" type="number" step="0.1" bind:value={editWeight} />
 			</div>
 
 			<div class="space-y-2">
 				<label for="date">Date</label>
-				<Input id="date" type="date" bind:value={editDate} />
+				<Input class="shadow-md" id="date" type="date" bind:value={editDate} />
 			</div>
 		</div>
 
 		<Dialog.Footer>
-			<Button size="lg" variant="outline" onclick={onClose}>Cancel</Button>
+			<Button class="shadow-md" size="lg" variant="outline" onclick={onClose}>Cancel</Button>
 
-			<Button size="lg" onclick={handleSave} disabled={saving}>
+			<Button class="shadow-md" size="lg" onclick={handleSave} disabled={saving}>
 				{#if saving}
 					<Spinner />
 					Saving...

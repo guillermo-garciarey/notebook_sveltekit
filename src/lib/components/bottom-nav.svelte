@@ -8,6 +8,7 @@
 	import { supabase } from '$lib/supabase';
 	import { resolve } from '$app/paths';
 	import { quickAction } from '$lib/stores/quickAction';
+	import ThemeToggle from '$lib/components/theme-toggle.svelte';
 
 	let open = $state(false);
 
@@ -31,7 +32,7 @@
 <nav class="flex h-20 items-center justify-end px-4 gap-4">
 	<!-- Left: avatar -->
 
-	<Button onclick={() => $quickAction?.()} class="size-11" variant="outline">
+	<Button onclick={() => $quickAction?.()} class="size-11 shadow-md" variant="outline">
 		<Plus class="size-5" />
 	</Button>
 
@@ -40,7 +41,7 @@
 		<Drawer.Root direction="right" bind:open>
 			<Drawer.Trigger>
 				{#snippet child({ props })}
-					<Button class="size-11" variant="outline" {...props}>
+					<Button class="size-11 shadow-md" variant="outline" {...props}>
 						<Menu class="size-5" />
 					</Button>
 				{/snippet}
@@ -54,6 +55,7 @@
 					<Button variant="ghost" class="justify-start">Settings</Button>
 					<Button variant="ghost" class="justify-start" onclick={logout}>Logout</Button>
 				</div>
+				<ThemeToggle />
 			</Drawer.Content>
 		</Drawer.Root>
 	</div>

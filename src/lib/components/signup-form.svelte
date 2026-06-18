@@ -42,11 +42,12 @@
 				<Field.Group>
 					<Field.Field>
 						<Field.Label for="name">Full Name</Field.Label>
-						<Input id="name" type="text" placeholder="" required />
+						<Input class="shadow-md" id="name" type="text" placeholder="" required />
 					</Field.Field>
 					<Field.Field>
 						<Field.Label for="email">Email</Field.Label>
 						<Input
+							class="shadow-md"
 							id="email"
 							type="email"
 							placeholder="mail@example.com"
@@ -58,17 +59,23 @@
 						<Field.Field class="grid grid-cols-2 gap-4">
 							<Field.Field>
 								<Field.Label for="password">Password</Field.Label>
-								<Input id="password" type="password" bind:value={password} required />
+								<Input
+									class="shadow-md"
+									id="password"
+									type="password"
+									bind:value={password}
+									required
+								/>
 							</Field.Field>
 							<Field.Field>
 								<Field.Label for="confirm-password">Confirm Password</Field.Label>
-								<Input id="confirm-password" type="password" required />
+								<Input class="shadow-md" id="confirm-password" type="password" required />
 							</Field.Field>
 						</Field.Field>
 						<Field.Description>Must be at least 8 characters long.</Field.Description>
 					</Field.Field>
 					<Field.Field>
-						<Button type="submit">Create Account</Button>
+						<Button class="shadow-md" type="submit">Create Account</Button>
 						<Field.Description class="text-center">
 							Already have an account? <a href={resolve('/login')}>Sign in</a>
 						</Field.Description>

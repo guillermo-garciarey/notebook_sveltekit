@@ -11,6 +11,18 @@
 	import { quickAction } from '$lib/stores/quickAction';
 	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import EmptyWeights from '$lib/components/empty-weights.svelte';
+	import Label from '$lib/components/ui/label/label.svelte';
+
+	const today = new Date();
+
+	const formattedDate = {
+		month: today
+			.toLocaleDateString('en-IE', {
+				month: 'short'
+			})
+			.toUpperCase(),
+		dateNumber: today.getDate()
+	};
 
 	let addWeightDrawerOpen = $state(false);
 
@@ -173,22 +185,32 @@
 
 <Drawer.Root bind:open={addWeightDrawerOpen}>
 	<Drawer.Content>
-		<div class="grid gap-4 p-6">
-			<Drawer.Header>
-				<Drawer.Title>Add weight</Drawer.Title>
-				<Drawer.Description>Record today’s weight entry.</Drawer.Description>
-			</Drawer.Header>
+		<Drawer.Header class="">
+			<Drawer.Title>Log entry</Drawer.Title>
+			<Drawer.Description>Add today's weight.</Drawer.Description>
+		</Drawer.Header>
 
-			<Input id="weight" type="number" bind:value={weight} placeholder="Weight in kg" />
-
-			<Button onclick={addWeight} disabled={adding}>
+		<form class="grid items-start gap-4 p-4">
+			<div class="grid gap-2">
+				<Label>Weight</Label>
+				<Input
+					class="shadow-md text-center"
+					type="number"
+					step="0.1"
+					bind:value={weight}
+					placeholder="-"
+				/>
+			</div>
+		</form>
+		<Drawer.Footer>
+			<Button class="shadow-md" onclick={addWeight} disabled={adding}>
 				{#if adding}
 					<Spinner />
-					Adding...
+					Saving...
 				{:else}
-					Add weight
+					Save
 				{/if}
 			</Button>
-		</div>
+		</Drawer.Footer>
 	</Drawer.Content>
 </Drawer.Root>

@@ -72,12 +72,12 @@
 		{@const formattedDate = formatEntryDate(entry.recorded_on)}
 
 		<div animate:flip in:fly={{ x: 150, duration: 500 }} out:fly={{ y: -30, duration: 250 }}>
-			<Item.Root variant="outline">
+			<Item.Root variant="muted" class="shadow-md">
 				{#snippet child({ props })}
-					<button type="button" {...props} onclick={() => openDrawer(entry)}>
+					<button class="" type="button" {...props} onclick={() => openDrawer(entry)}>
 						<Item.Media>
 							<div
-								class="size-12 flex flex-col overflow-hidden rounded bg-white border border-sidebar-ring"
+								class="shadow-md size-12 flex flex-col overflow-hidden bg-white border border-border"
 							>
 								<div class="bg-red-600 py-0.5 text-center text-xs font-bold text-white">
 									{formattedDate.month}
@@ -126,17 +126,17 @@
 		<form class="grid items-start gap-4 p-4">
 			<div class="grid gap-2">
 				<Label>Weight</Label>
-				<Input type="number" step="0.1" bind:value={editWeight} />
+				<Input class="shadow-md" type="number" step="0.1" bind:value={editWeight} />
 			</div>
 
 			<div class="grid gap-2">
 				<Label>Date</Label>
-				<Input type="date" bind:value={editDate} />
+				<Input class="shadow-md" type="date" bind:value={editDate} />
 			</div>
 		</form>
 
 		<Drawer.Footer>
-			<Button variant="outline" onclick={handleSave} disabled={saving}>
+			<Button class="shadow-md" variant="outline" onclick={handleSave} disabled={saving}>
 				{#if saving}
 					<Spinner />
 					Saving...
@@ -145,6 +145,7 @@
 				{/if}
 			</Button>
 			<Button
+				class="shadow-md"
 				size="lg"
 				variant="destructive"
 				onclick={() => {
